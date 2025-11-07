@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>KARTA AKTU ZGONU – PRM</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root{
+            --bg:#0b0b0c;
+            --card:#1a0f0f;
+            --muted:#bdb6b6;
+            --accent:#c92a2a;
+            --accent-2:#ff4d4d;
+            --border:#2a1a1a;
+        }
+        *{box-sizing:border-box}
+        body{
+            margin:0;font-family:'Poppins',system-ui,Segoe UI,Roboto,"Helvetica Neue",Arial;
+            background:linear-gradient(180deg,#060607 0%, #0d0d0e 100%);
+            color:var(--muted);padding:28px;display:flex;align-items:flex-start;justify-content:center;min-height:100vh;
+        }
+        .container{width:100%;max-width:920px;background:linear-gradient(180deg,var(--card),#140808);border-radius:14px;padding:26px;border:1px solid var(--border);box-shadow:0 8px 30px rgba(0,0,0,0.6)}
+        header{display:flex;flex-direction:column;gap:6px;margin-bottom:18px}
+        h1{margin:0;color:var(--accent-2);font-size:1.6rem;letter-spacing:0.6px}
+        .subtitle{color:#e6cfcf;font-weight:600;font-size:0.9rem}
+
+        form{margin-top:6px}
+        label{display:block;margin-top:12px;margin-bottom:6px;font-weight:600;color:#f3dede}
+        input[type=text], input[type=date], input[type=time], input[type=datetime-local], textarea, select{
+            width:100%;padding:10px 12px;border-radius:8px;background:#120707;border:1px solid #331919;color:var(--muted);font-size:0.95rem
+        }
+        textarea{min-height:90px;resize:vertical}
+        .row{display:flex;gap:10px}
+        .row>div{flex:1}
+        .checkbox-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+        .checkbox-row label{display:flex;align-items:center;gap:8px;font-weight:600;color:var(--muted)}
+
+        .actions{display:flex;gap:10px;margin-top:14px}
+        button.send{background:linear-gradient(90deg,var(--accent),var(--accent-2));border:none;padding:12px 16px;border-radius:10px;color:white;font-weight:700;cursor:pointer}
+        button.copy{background:transparent;border:1px solid #3a1a1a;color:var(--muted);padding:10px 12px;border-radius:10px;cursor:pointer}
+
+        #status{margin-top:12px;padding:10px;border-radius:8px;text-align:center;font-weight:600}
+        .ok{background:rgba(34,139,34,0.08);color:#7ee27e;border:1px solid rgba(34,139,34,0.12)}
+        .err{background:rgba(220,53,69,0.06);color:#ff8888;border:1px solid rgba(220,53,69,0.12)}
+
+        .preview{white-space:pre-wrap;background:#0f0a0a;border-radius:8px;padding:12px;border:1px dashed #2a0f0f;margin-top:12px;color:#f1eaea}
+
+        @media (max-width:720px){.row{flex-direction:column}}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>KARTA AKTU ZGONU – PRM</h1>
+            <div class="subtitle">Proste wypełnianie formularza — wysyłka jako tekst na Discord</div>
+        </header>
+
+        <form id="kartaForm">
+            <h3># DANE OSOBY ZMARŁEJ</h3>
+            <label>Imię i nazwisko</label>
+            <input type="text" id="imie" placeholder="np. Jan Kowalski" required>
+
+            <div class="row">
+                <div>
+                    <label>Data urodzenia</label>
+                    <input type="date" id="dataUr" />
+                </div>
+                <div>
+                    <label>PESEL / ID</label>
+                    <input type="text" id="pesel" placeholder="PESEL lub ID" />
+                </div>
+            </div>
+
+            <label>Płeć</label>
+            <div class="checkbox-row">
+                <label><input type="radio" name="plec" value="M" checked> M</label>
+                <label><input type="radio" name="plec" value="K"> K</label>
+            </div>
+
+            <label>Adres zamieszkania</label>
+            <input type="text" id="adres" placeholder="Ulica, numer, miejscowość">
+
+            <h3 style="margin-top:16px"># DANE DOTYCZĄCE ZGONU</h3>
+            <div class="row">
+                <div>
+                    <label>Data zgonu</label>
+                    <input type="date" id="dataZgonu">
+                </div>
+                <div>
+                    <label>Godzina</label>
+                    <input type="time" id="godzinaZgonu">
+                </div>
+            </div>
+
+            <label>Miejsce zgonu</label>
+            <div style="margin-bottom:8px;color:var(--muted);font-weight:600">Wybierz jedną z opcji</div>
+            <div class="checkbox-row">
+                <label><input type="radio" name="miejsce" value="Szpital" checked> Szpital (oddział: <input type="text" id="oddzial" placeholder="np. Chirurgia" style="width:220px;padding:6px;border-radius:6px;margin-left:6px">)</label>
+            </div>
+            <div class="checkbox-row" style="margin-top:6px">
+                <label><input type="radio" name="miejsce" value="Dom"> Dom</label>
+                <label><input type="radio" name="miejsce" value="Miejsce publiczne"> Miejsce publiczne</label>
+                <label><input type="radio" name="miejsce" value="Inne"> Inne: <input type="text" id="miejsceInne" placeholder="opis" style="width:200px;padding:6px;border-radius:6px;margin-left:6px"></label>
+            </div>
+
+            <h3 style="margin-top:16px"># LEKARZ STWIERDZAJĄCY ZGON</h3>
+            <label>Imię i nazwisko</label>
+            <input type="text" id="lekarzImie" placeholder="np. dr hab. Jan Nowak">
+            <label>Nr prawa wykonywania zawodu</label>
+            <input type="text" id="nrPrawa" placeholder="numer PWZ">
+            <label>Miejsce pracy</label>
+            <input type="text" id="miejscePracy" placeholder="Placówka / szpital">
+            <label>Podpis i pieczęć</label>
+            <input type="text" id="podpis" placeholder="Podpis i pieczęć">
+
+            <h3 style="margin-top:16px"># PRZYCZYNA ZGONU (wg ICD-10)</h3>
+            <label>Przyczyna bezpośrednia</label>
+            <input type="text" id="przyczynaBezpo" placeholder="np. Zawał serca">
+            <label>Stany poprzedzające</label>
+            <input type="text" id="stanyPoprzedzajace" placeholder="np. Nadciśnienie">
+            <label>Choroba podstawowa</label>
+            <input type="text" id="chorobaPodstawowa" placeholder="np. Cukrzyca">
+            <label>Inne przyczyny współistniejące</label>
+            <input type="text" id="innePrzyczyny" placeholder="opcjonalnie">
+
+            <h3 style="margin-top:16px"># OKOLICZNOŚCI ZGONU</h3>
+            <div class="checkbox-row">
+                <label><input type="radio" name="okolicznosci" value="Naturalny" checked> Naturalny</label>
+                <label><input type="radio" name="okolicznosci" value="Nienaturalny"> Nienaturalny (uraz / zatrucie / samobójstwo / zabójstwo / wypadek)</label>
+            </div>
+            <div style="margin-top:8px">
+                <label>Czy wymagane jest zawiadomienie prokuratury?</label>
+                <div class="checkbox-row"><label><input type="radio" name="prokuratura" value="Tak"> Tak</label><label><input type="radio" name="prokuratura" value="Nie" checked> Nie</label></div>
+            </div>
+
+            <h3 style="margin-top:16px"># 🧬 SEKCJA ZWŁOK</h3>
+            <label>Link do pełnego raportu sekcyjnego (Google Docs / inny)</label>
+            <input type="text" id="linkSekcja" placeholder="https://...">
+
+            <label>Uwagi dodatkowe / informacje operacyjne</label>
+            <textarea id="uwagiDodatkowe" placeholder="Dodatkowe informacje, uwagi..." rows="4"></textarea>
+
+            <div style="margin-top:10px">
+                <label>Podpis patomorfologa</label>
+                <input type="text" id="podpisPatom" placeholder="Podpis patomorfologa">
+            </div>
+
+            <div class="row" style="margin-top:10px">
+                <div>
+                    <label>Data i godzina zakończenia sekcji</label>
+                    <input type="datetime-local" id="dataSekcja">
+                </div>
+                <div>
+                    <label>&nbsp;</label>
+                    <div style="display:flex;gap:8px">
+                        <button type="button" class="send" id="sendBtn">Wyślij kartę</button>
+                        <button type="button" class="copy" id="copyBtn">Kopiuj treść</button>
+                    </div>
+                </div>
+            </div>
+
+            <div id="status" aria-live="polite"></div>
+
+            <div style="margin-top:12px">
+                <div style="color:#e9dede;font-weight:700;margin-bottom:8px">Podgląd wysyłanej treści:</div>
+                <div id="preview" class="preview">Wypełnij pola, aby zobaczyć podgląd.</div>
+            </div>
+        </form>
+    </div>
+
+    <script>
+        // Twój webhook (wklejony przez użytkownika)
+        const WEBHOOK_URL = 'https://discord.com/api/webhooks/1436293503570284686/yd0vuqDO5rwHc7tV3KlL9ta7Ym5L3Knl7uH1aAGWR229xQ-C1DSZvR2hPdsoAt40LsZu';
+
+        // Utility
+        function $(id){return document.getElementById(id)}
+        function q(name){return document.querySelector(`input[name="${name}"]:checked`)}
+
+        function buildText(){
+            const imie = $('imie').value || '....................................................';
+            const dataUr = $('dataUr').value || '......................';
+            const pesel = $('pesel').value || '.................................';
+            const plec = q('plec') ? q('plec').value : '—';
+            const adres = $('adres').value || '....................................................';
+
+            const dataZgonu = $('dataZgonu').value || '.............................';
+            const godzinaZgonu = $('godzinaZgonu').value || '.............................';
+
+            const miejsceSel = q('miejsce') ? q('miejsce').value : '—';
+            let miejsceOpis = '';
+            if(miejsceSel === 'Szpital'){
+                const odd = $('oddzial').value || '...................................';
+                miejsceOpis = `☐ Szpital (oddział: ${odd})`;
+            } else if(miejsceSel === 'Dom'){
+                miejsceOpis = '☐ Dom';
+            } else if(miejsceSel === 'Miejsce publiczne'){
+                miejsceOpis = '☐ Miejsce publiczne';
+            } else if(miejsceSel === 'Inne'){
+                const miinne = $('miejsceInne').value || '....................................................';
+                miejsceOpis = `☐ Inne: ${miinne}`;
+            }
+
+            const lekarz = $('lekarzImie').value || '....................................................';
+            const nrP = $('nrPrawa').value || '.............................';
+            const miejscePr = $('miejscePracy').value || '....................................................';
+            const podpis = $('podpis').value || '....................................................';
+
+            const przyczynaBez = $('przyczynaBezpo').value || '....................................................';
+            const stany = $('stanyPoprzedzajace').value || '....................................................';
+            const choroba = $('chorobaPodstawowa').value || '....................................................';
+            const inne = $('innePrzyczyny').value || '....................................................';
+
+            const okolicznosci = q('okolicznosci') ? q('okolicznosci').value : '—';
+            const prokur = q('prokuratura') ? q('prokuratura').value : '—';
+
+            const linkSek = $('linkSekcja').value || '[LINK DO SEKCJI ZWŁOK - GOOGLE DOCS]';
+            const uwagi = $('uwagiDodatkowe').value || '\n.............................................................................\n.............................................................................';
+            const podpisPat = $('podpisPatom').value || '....................................................';
+            const dataSek = $('dataSekcja').value || '.............................';
+
+            // Zbuduj dokładnie wg wzoru użytkownika
+            const lines = [];
+            lines.push('⚰️ KARTA AKTU ZGONU ⚰️\n');
+            lines.push('# DOKUMENT MEDYCZNO–SEKCYJNY\n');
+            lines.push('# DANE OSOBY ZMARŁEJ\n');
+            lines.push(`**Imię i nazwisko:** ${imie}`);
+            lines.push(`**Data urodzenia: **${dataUr}`);
+            lines.push(`**PESEL / ID:** ${pesel}`);
+            lines.push(`**Płeć: ☐ M ☐ K**  (wybrano: ${plec})`);
+            lines.push(`**Adres zamieszkania:** ${adres}\n`);
+
+            lines.push('# DANE DOTYCZĄCE ZGONU\n');
+            lines.push(`**Data zgonu:** ${dataZgonu}`);
+            lines.push(`**Godzina: ${godzinaZgonu}`);
+            lines.push('**Miejsce zgonu:**');
+            lines.push(miejsceOpis);
+            if(!miejsceOpis) lines.push('☐ **Szpital (oddział: ...................................)**');
+            lines.push('\n# LEKARZ STWIERDZAJĄCY ZGON\n');
+            lines.push(`**Imię i nazwisko:** ${lekarz}`);
+            lines.push(`**Nr prawa wykonywania zawodu:** ${nrP}`);
+            lines.push(`**Miejsce pracy:** ${miejscePr}`);
+            lines.push(`**Podpis i pieczęć:** ${podpis}\n`);
+
+            lines.push('# PRZYCZYNA ZGONU (wg ICD-10)\n');
+            lines.push(`**Przyczyna bezpośrednia:** ${przyczynaBez}`);
+            lines.push(`**Stany poprzedzające:** ${stany}`);
+            lines.push(`**Choroba podstawowa: **${choroba}`);
+            lines.push(`*Inne przyczyny współistniejące:*${inne}\n`);
+
+            lines.push('# OKOLICZNOŚCI ZGONU\n');
+            lines.push('☐ **Naturalny**');
+            lines.push('☐ **Nienaturalny (uraz / zatrucie / samobójstwo / zabójstwo / wypadek)**');
+            lines.push(`\n*Czy wymagane jest zawiadomienie prokuratury?* ☐ Tak ☐ Nie (wybrano: ${prokur})\n`);
+
+            lines.push('# 🧬 SEKCJA ZWŁOK\n');
+            lines.push('🔗** Pełny raport sekcyjny dostępny pod poniższym linkiem:**');
+            lines.push(`👉 ${linkSek}`);
+            lines.push('\n*UWAGI DODATKOWE / INFORMACJE OPERACYJNE*\n');
+            lines.push(uwagi);
+            lines.push('\n*Podpis patomorfologa:* ' + podpisPat);
+            lines.push('*Data i godzina zakończenia sekcji:* ' + dataSek);
+
+            return lines.join('\n');
+        }
+
+        const previewEl = $('preview');
+        const statusEl = $('status');
+
+        function updatePreview(){ previewEl.textContent = buildText(); }
+
+        // Aktualizuj podgląd przy zmianach
+        document.querySelectorAll('input, textarea').forEach(el => el.addEventListener('input', updatePreview));
+        document.querySelectorAll('input[type=radio]').forEach(el => el.addEventListener('change', updatePreview));
+        updatePreview();
+
+        // Kopiuj do schowka
+        $('copyBtn').addEventListener('click', async () => {
+            try{
+                await navigator.clipboard.writeText(buildText());
+                statusEl.textContent = 'Skopiowano do schowka!';
+                statusEl.className = 'ok';
+            }catch(e){
+                statusEl.textContent = 'Błąd kopiowania: ' + e.message;
+                statusEl.className = 'err';
+            }
+        });
+
+        // Wyślij treść jako zwykły tekst na webhook (bez embed)
+        $('sendBtn').addEventListener('click', async () => {
+            const content = buildText();
+            statusEl.textContent = 'Wysyłam...'; statusEl.className = '';
+            try{
+                const res = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({content: content})
+                });
+                if(!res.ok){
+                    const txt = await res.text();
+                    throw new Error('Status ' + res.status + ' - ' + txt);
+                }
+                statusEl.textContent = '✅ Wysłano pomyślnie';
+                statusEl.className = 'ok';
+                // nie czyścimy formularza (użytkownik poprosił by zostać na stronie)
+            }catch(err){
+                statusEl.textContent = 'Błąd podczas wysyłki: ' + err.message;
+                statusEl.className = 'err';
+            }
+        });
+
+    </script>
+</body>
+</html>
